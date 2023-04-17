@@ -26,10 +26,10 @@ export class User {
   @OneToMany(() => Post, (post) => post.user)
   post: Post[]
 
-  @OneToMany(() => Follow, (follow) => follow.following)
+  @OneToMany(() => Follow, (follow) => follow.followee)
   following: Follow[]
 
-  @OneToMany(() => Follow, (follow) => follow.followee)
+  @OneToMany(() => Follow, (follow) => follow.following)
   follower: Follow[]
 
   // @OneToMany(() => Comment, (comment) => comment.user)

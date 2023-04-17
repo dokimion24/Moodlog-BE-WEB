@@ -2,6 +2,7 @@ import express from 'express'
 import { myDataBase } from './db'
 import cors from 'cors'
 import UserRouter from './router/auth'
+import FollowRouter from './router/follow'
 
 export const tokenList = {}
 
@@ -24,6 +25,7 @@ app.use(
 )
 
 app.use('/auth', UserRouter)
+app.use('/follow', FollowRouter)
 
 app.listen(3000, () => {
   console.log('Express server has started on port 3000')

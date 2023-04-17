@@ -4,18 +4,13 @@ import { User } from '../entity/User'
 import { generateAccessToken, generatePassword, generateRefreshToken, registerToken, removeToken } from '../util/Auth'
 import { verify } from 'jsonwebtoken'
 import bcrypt from 'bcrypt'
+import { JwtRequest } from '../middleware/AuthMiddleware'
 
 interface MulterS3Request extends Request {
   file: Express.MulterS3.File
 }
 
-interface Decoded {
-  id: number
-  username: string
-  email: string
-  iat: number
-  exp: number
-}
+type JwtwithMulter = JwtRequest & MulterS3Request
 
 export class UserController {
   static register = async (req: MulterS3Request, res: Response) => {
@@ -56,7 +51,7 @@ export class UserController {
 
   static getUsers = async (req: Request, res: Response) => {
     const result = await myDataBase.getRepository(User).find({
-      relations: ['post', 'following', 'follower'],
+      relations: ['post', 'following', 'following.following', 'follower', 'follower.followee'],
     })
     return res.send(result)
   }
@@ -96,12 +91,12 @@ export class UserController {
 
     removeToken(refreshToken)
     res.clearCookie('refreshToken', { path: '/' })
-    return res.send('success')
+    res.send({ message: 'success' })
   }
 
-  static withdrawal = async (req: Request, res: Response) => {
-    const { accessToken, password } = req.body
-    const decoded = verify(accessToken, process.env.SECRET_ATOKEN) as Decoded
+  static withdrawal = async (req: JwtRequest, res: Response) => {
+    const { password } = req.body
+    const decoded = req.decoded
 
     const user = await myDataBase.getRepository(User).findOne({
       where: { email: decoded.email },
@@ -119,18 +114,18 @@ export class UserController {
 
     try {
       await myDataBase.getRepository(User).delete(user.id)
-      res.status(204).send('success')
-    } catch (err) {
-      res.status(403).send(err)
+      res.status(204).send({ message: 'success' })
+    } catch (error) {
+      res.status(403).json(error)
     }
   }
 
-  static updateProfile = async (req: MulterS3Request, res: Response) => {
-    const { accessToken, profile_message } = req.body
+  static updateProfile = async (req: JwtwithMulter, res: Response) => {
+    const { profile_message } = req.body
 
     const { location } = req.file
 
-    const decoded = verify(accessToken, process.env.SECRET_ATOKEN) as Decoded
+    const decoded = req.decoded
 
     const user = await myDataBase.getRepository(User).findOne({
       where: { email: decoded.email },
