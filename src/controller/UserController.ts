@@ -1,9 +1,11 @@
 import { Request, Response } from 'express'
 import { myDataBase } from '../db'
 import { User } from '../entity/User'
-import { generateAccessToken, generatePassword, generateRefreshToken, registerToken } from '../util/Auth'
+import { generateAccessToken, generatePassword, generateRefreshToken, registerToken, removeToken } from '../util/Auth'
 import { verify } from 'jsonwebtoken'
 import bcrypt from 'bcrypt'
+import { JwtRequest } from '../middleware/AuthMiddleware'
+import { tokenList } from '../app'
 
 interface MulterS3Request extends Request {
   file: Express.MulterS3.File
@@ -80,5 +82,14 @@ export class UserController {
       maxAge: 3600 * 24 * 30 * 1000,
     })
     return res.send({ content: decoded, accessToken })
+  }
+
+  static logout = (req: JwtRequest, res: Response) => {
+    const cookie = req.headers['cookie']
+    const refreshToken = cookie.includes('refreshToken') && cookie.match(/(?<=refreshToken=).{1,}/gm)[0]
+
+    removeToken(refreshToken)
+    res.clearCookie('refreshToken', { path: '/' })
+    return res.send('success')
   }
 }
