@@ -5,6 +5,9 @@ import postRouter from './router/posts'
 import commentRouter from './router/comments'
 import likeRouter from './router/like'
 import { upload } from './util/upload'
+import UserRouter from './router/auth'
+
+export const tokenList = {}
 
 myDataBase
   .initialize()
@@ -24,7 +27,6 @@ app.use(
     origin: true,
   }),
 )
-
 app.post('/upload', upload.single('img'), (req: Request, res: Response) => {
   res.json(req.file)
 }) // 업로드 후에, (req, res) => {} 부분이 실행
@@ -32,6 +34,7 @@ app.post('/upload', upload.single('img'), (req: Request, res: Response) => {
 app.use('/posts', postRouter)
 app.use('/comments', commentRouter)
 app.use('/likes', likeRouter)
+app.use('/auth', UserRouter)
 
 app.listen(3000, () => {
   console.log('Express server has started on port 3000')
