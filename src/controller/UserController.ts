@@ -4,8 +4,6 @@ import { User } from '../entity/User'
 import { generateAccessToken, generatePassword, generateRefreshToken, registerToken, removeToken } from '../util/Auth'
 import { verify } from 'jsonwebtoken'
 import bcrypt from 'bcrypt'
-import { JwtRequest } from '../middleware/AuthMiddleware'
-import { tokenList } from '../app'
 
 interface MulterS3Request extends Request {
   file: Express.MulterS3.File
@@ -56,20 +54,10 @@ export class UserController {
   }
 
   static login = async (req: Request, res: Response) => {
-    const { email, password } = req.body
+    const { email } = req.body
     const user = await myDataBase.getRepository(User).findOne({
       where: { email },
     })
-
-    if (!user) {
-      return res.status(400).json({ error: 'User not found' })
-    }
-
-    const validPassword = await bcrypt.compare(password, user.password)
-
-    if (!validPassword) {
-      return res.status(400).json({ error: 'Invalid Password' })
-    }
 
     //로그인 성공
     const accessToken = generateAccessToken(user.id, user.username, user.email)
@@ -84,12 +72,22 @@ export class UserController {
     return res.send({ content: decoded, accessToken })
   }
 
-  static logout = (req: JwtRequest, res: Response) => {
+  static logout = (req: Request, res: Response) => {
     const cookie = req.headers['cookie']
     const refreshToken = cookie.includes('refreshToken') && cookie.match(/(?<=refreshToken=).{1,}/gm)[0]
 
     removeToken(refreshToken)
     res.clearCookie('refreshToken', { path: '/' })
     return res.send('success')
+  }
+
+  static withdrawal = async (req: Request, res: Response) => {
+    const { email } = req.body
+    const user = await myDataBase.getRepository(User).findOne({
+      where: { email },
+    })
+
+    const result = await myDataBase.getRepository(User).delete(user.id)
+    res.status(204).send('success')
   }
 }
