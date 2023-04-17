@@ -8,7 +8,7 @@ export class User {
   @PrimaryGeneratedColumn()
   id: number
 
-  @Column({ unique: true }) // 이메일은 중복되지 않도록 설계
+  @Column({ unique: true })
   email: string
 
   @Column()
@@ -26,10 +26,10 @@ export class User {
   @OneToMany(() => Post, (post) => post.user)
   post: Post[]
 
-  @OneToMany(() => Follow, (follow) => follow.followee)
+  @OneToMany(() => Follow, (follow) => follow.following)
   following: Follow[]
 
-  @OneToMany(() => Follow, (follow) => follow.following)
+  @OneToMany(() => Follow, (follow) => follow.follower)
   follower: Follow[]
 
   // @OneToMany(() => Comment, (comment) => comment.user)

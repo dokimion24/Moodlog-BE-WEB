@@ -11,22 +11,22 @@ export class FollowController {
 
     const isExist = await myDataBase.getRepository(Follow).findOne({
       where: {
-        following: { id: Number(userId) },
-        followee: { id: Number(decoded.id) },
+        following: { id: Number(decoded.id) },
+        follower: { id: Number(userId) },
       },
     })
 
     if (!isExist) {
-      const following = await myDataBase.getRepository(User).findOneBy({
+      const follower = await myDataBase.getRepository(User).findOneBy({
         id: Number(userId),
       })
-      const followee = await myDataBase.getRepository(User).findOneBy({
+      const following = await myDataBase.getRepository(User).findOneBy({
         id: decoded.id,
       })
 
       const follow = new Follow()
+      follow.follower = follower
       follow.following = following
-      follow.followee = followee
 
       await myDataBase.getRepository(Follow).insert(follow)
     } else {
@@ -34,5 +34,14 @@ export class FollowController {
     }
 
     res.send({ message: 'success' })
+  }
+
+  static getFollower = async (req: JwtRequest, res: Response) => {
+    const decoded = req.decoded
+
+    const result = await myDataBase.getRepository(Follow).find({
+      where: { follower: { id: Number(decoded.id) } },
+    })
+    res.send(result)
   }
 }

@@ -49,9 +49,36 @@ export class UserController {
     res.send({ content: decoded, accessToken })
   }
 
-  static getUsers = async (req: Request, res: Response) => {
-    const result = await myDataBase.getRepository(User).find({
-      relations: ['post', 'following', 'following.following', 'follower', 'follower.followee'],
+  static getUser = async (req: JwtRequest, res: Response) => {
+    const decoded = req.decoded
+    const result = await myDataBase.getRepository(User).findOne({
+      where: { id: Number(decoded.id) },
+      select: {
+        id: true,
+        email: true,
+        username: true,
+        profile_image: true,
+        profile_message: true,
+        follower: {
+          id: true,
+          following: {
+            id: true,
+            username: true,
+            profile_image: true,
+            profile_message: true,
+          },
+        },
+        following: {
+          id: true,
+          follower: {
+            id: true,
+            username: true,
+            profile_image: true,
+            profile_message: true,
+          },
+        },
+      },
+      relations: ['post', 'following', 'following.follower', 'follower', 'follower.following'],
     })
     return res.send(result)
   }
