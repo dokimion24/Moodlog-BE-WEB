@@ -1,6 +1,8 @@
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm'
 import { Post } from './Post'
 import { Follow } from './Follow'
+import { Comment } from './Comment'
+import { Like } from './Like'
 // import { Comment } from './Comment'
 
 @Entity()
@@ -23,7 +25,7 @@ export class User {
   @Column()
   profile_message: string
 
-  @OneToMany(() => Post, (post) => post.user)
+  @OneToMany(() => Post, (post) => post.user, { cascade: true })
   post: Post[]
 
   @OneToMany(() => Follow, (follow) => follow.following)
@@ -32,8 +34,11 @@ export class User {
   @OneToMany(() => Follow, (follow) => follow.followee)
   follower: Follow[]
 
-  // @OneToMany(() => Comment, (comment) => comment.user)
-  // Comment: Comment[]
+  @OneToMany(() => Comment, (comment) => comment.user)
+  comments: Comment[]
+
+  @OneToMany(() => Like, (like) => like.user)
+  likes: Like[]
 
   @CreateDateColumn()
   createdAt: Date

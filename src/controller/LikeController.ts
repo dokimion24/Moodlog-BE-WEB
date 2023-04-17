@@ -2,10 +2,21 @@ import { Request, Response } from 'express'
 import { myDataBase } from '../db'
 import { Like } from '../entity/Like'
 import { Post } from '../entity/Post'
+import { User } from '../entity/User'
 
 export class LikeController {
   static getLikes = async (req: Request, res: Response) => {
-    const likes = await myDataBase.getRepository(Like).find({ relations: ['post'] })
+    const likes = await myDataBase.getRepository(Like).find({
+      select: {
+        user: {
+          id: true,
+          email: true,
+          username: true,
+        },
+      },
+      relations: ['post', 'user'],
+    })
+
     return res.status(200).send(likes)
   }
   static updateLike = async (req: Request, res: Response) => {
@@ -13,6 +24,7 @@ export class LikeController {
     const isExist = await myDataBase.getRepository(Like).findOne({
       where: {
         post: { id: Number(req.params.id) },
+        user: { id: req.body.id },
       },
     })
     // 이미 좋아요를 누른게 아니라면
@@ -21,8 +33,13 @@ export class LikeController {
       const post = await myDataBase.getRepository(Post).findOneBy({
         id: Number(req.params.id),
       })
+      const user = await myDataBase.getRepository(User).findOneBy({
+        id: req.body.id,
+      })
       const like = new Like()
       like.post = post
+      like.user = user
+
       await myDataBase.getRepository(Like).insert(like)
       return res.status(200).send('success update')
     } else {

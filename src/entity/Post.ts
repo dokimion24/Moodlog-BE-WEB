@@ -12,7 +12,7 @@ import {
 } from 'typeorm'
 import { Comment } from './Comment'
 import { Like } from './Like'
-
+import { User } from './User'
 @Entity() // 해당 클래스는 DB 테이블
 export class Post {
   @PrimaryGeneratedColumn() // Primary Key, 자동 생성
@@ -45,5 +45,6 @@ export class Post {
   @OneToMany(() => Like, (like) => like.post, { cascade: true })
   likes: Like[]
 
-  // User Table과 연결하기
+  @ManyToOne(() => User, (user) => user.post, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
+  user: User
 }

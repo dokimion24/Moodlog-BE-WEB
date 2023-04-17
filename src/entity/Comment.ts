@@ -10,6 +10,7 @@ import {
   ManyToOne,
 } from 'typeorm'
 import { Post } from './Post'
+import { User } from './User'
 
 @Entity() // 해당 클래스는 DB 테이블
 export class Comment {
@@ -28,5 +29,6 @@ export class Comment {
   @ManyToOne(() => Post, (post) => post.comments, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
   post: Post
 
-  // User Table
+  @ManyToOne(() => User, (user) => user.comments, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
+  user: User
 }

@@ -12,6 +12,7 @@ export interface TokenPayload {
 
 export interface JwtRequest extends Request {
   decoded?: TokenPayload
+  file: Express.MulterS3.File
 }
 
 //app.post('/', 인증미들웨어, 글작성 함수)

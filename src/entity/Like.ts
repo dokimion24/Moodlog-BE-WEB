@@ -10,6 +10,7 @@ import {
   ManyToOne,
 } from 'typeorm'
 import { Post } from './Post'
+import { User } from './User'
 
 @Entity() // 해당 클래스는 DB 테이블
 export class Like {
@@ -25,5 +26,6 @@ export class Like {
   @ManyToOne(() => Post, (post) => post.likes, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
   post: Post
 
-  // User Table
+  @ManyToOne(() => User, (user) => user.likes, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
+  user: User
 }
