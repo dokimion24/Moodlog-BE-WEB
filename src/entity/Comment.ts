@@ -8,30 +8,17 @@ import {
   OneToMany,
   OneToOne,
   ManyToOne,
-  JoinTable,
 } from 'typeorm'
-import { Comment } from './Comment'
-import { Like } from './Like'
+import { Post } from './Post'
 import { User } from './User'
+
 @Entity() // 해당 클래스는 DB 테이블
-export class Post {
+export class Comment {
   @PrimaryGeneratedColumn() // Primary Key, 자동 생성
   id: number
 
   @Column()
-  title: string
-
-  @Column()
-  body: string
-
-  @Column()
-  img: string
-
-  @Column()
-  open: boolean
-
-  @Column()
-  feeling_code: number
+  comment: string
 
   @CreateDateColumn() // 생성 시의 시간 자동 기록
   createdAt: Date
@@ -39,12 +26,9 @@ export class Post {
   @UpdateDateColumn() // 수정 시의 시간 자동 기록
   updatedAt: Date
 
-  @OneToMany(() => Comment, (comment) => comment.post, { cascade: true })
-  comments: Comment[]
+  @ManyToOne(() => Post, (post) => post.comments, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
+  post: Post
 
-  @OneToMany(() => Like, (like) => like.post, { cascade: true })
-  likes: Like[]
-
-  @ManyToOne(() => User, (user) => user.post, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
+  @ManyToOne(() => User, (user) => user.comments, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
   user: User
 }
