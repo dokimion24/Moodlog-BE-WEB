@@ -7,8 +7,9 @@ const routes = Router()
 
 routes.get('/register', UserController.getUsers)
 routes.post('/register', upload.single('img'), UserController.register)
-routes.get('/login', AuthMiddleware.verifyAccount, UserController.login)
-routes.get('/logout', UserController.logout)
-routes.delete('/withdrawal', AuthMiddleware.verifyAccount, UserController.withdrawal)
+routes.post('/login', UserController.login)
+routes.post('/logout', UserController.logout)
+routes.delete('/withdrawal', UserController.withdrawal)
+routes.put('/update', upload.single('img'), UserController.updateProfile)
 
 export default routes

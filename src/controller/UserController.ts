@@ -9,6 +9,14 @@ interface MulterS3Request extends Request {
   file: Express.MulterS3.File
 }
 
+interface Decoded {
+  id: number
+  username: string
+  email: string
+  iat: number
+  exp: number
+}
+
 export class UserController {
   static register = async (req: MulterS3Request, res: Response) => {
     const { email, password, username } = req.body
@@ -54,10 +62,20 @@ export class UserController {
   }
 
   static login = async (req: Request, res: Response) => {
-    const { email } = req.body
+    const { email, password } = req.body
     const user = await myDataBase.getRepository(User).findOne({
       where: { email },
     })
+
+    if (!user) {
+      return res.status(400).json({ error: 'User not found' })
+    }
+
+    const validPassword = await bcrypt.compare(password, user.password)
+
+    if (!validPassword) {
+      return res.status(400).json({ error: 'Invalid Password' })
+    }
 
     //로그인 성공
     const accessToken = generateAccessToken(user.id, user.username, user.email)
@@ -82,12 +100,47 @@ export class UserController {
   }
 
   static withdrawal = async (req: Request, res: Response) => {
-    const { email } = req.body
+    const { accessToken, password } = req.body
+    const decoded = verify(accessToken, process.env.SECRET_ATOKEN) as Decoded
+
     const user = await myDataBase.getRepository(User).findOne({
-      where: { email },
+      where: { email: decoded.email },
     })
 
-    const result = await myDataBase.getRepository(User).delete(user.id)
-    res.status(204).send('success')
+    if (!user) {
+      return res.status(400).json({ error: 'User not found' })
+    }
+
+    const validPassword = await bcrypt.compare(password, user.password)
+
+    if (!validPassword) {
+      return res.status(400).json({ error: 'Invalid Password' })
+    }
+
+    try {
+      await myDataBase.getRepository(User).delete(user.id)
+      res.status(204).send('success')
+    } catch (err) {
+      res.status(403).send(err)
+    }
+  }
+
+  static updateProfile = async (req: MulterS3Request, res: Response) => {
+    const { accessToken, profile_message } = req.body
+
+    const { location } = req.file
+
+    const decoded = verify(accessToken, process.env.SECRET_ATOKEN) as Decoded
+
+    const user = await myDataBase.getRepository(User).findOne({
+      where: { email: decoded.email },
+    })
+
+    const newUser = new User()
+    newUser.profile_image = location
+    newUser.profile_message = profile_message
+
+    const result = await myDataBase.getRepository(User).update(user.id, newUser)
+    res.send(result)
   }
 }
