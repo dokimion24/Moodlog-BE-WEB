@@ -3,6 +3,7 @@ import { myDataBase } from '../db'
 import { User } from '../entity/User'
 import { generateAccessToken, generatePassword, generateRefreshToken, registerToken } from '../util/Auth'
 import { verify } from 'jsonwebtoken'
+import bcrypt from 'bcrypt'
 
 interface MulterS3Request extends Request {
   file: Express.MulterS3.File
@@ -19,7 +20,6 @@ export class UserController {
     })
 
     if (existUser) {
-      //아이디중복
       return res.status(400).json({ error: 'Duplicate User' })
     }
 
@@ -44,5 +44,41 @@ export class UserController {
       maxAge: 3600 * 24 * 30 * 1000,
     })
     res.send({ content: decoded, accessToken })
+  }
+
+  static getUsers = async (req: Request, res: Response) => {
+    const result = await myDataBase.getRepository(User).find({
+      relations: ['post', 'following', 'follower'],
+    })
+    return res.send(result)
+  }
+
+  static login = async (req: Request, res: Response) => {
+    const { email, password } = req.body
+    const user = await myDataBase.getRepository(User).findOne({
+      where: { email },
+    })
+
+    if (!user) {
+      return res.status(400).json({ error: 'User not found' })
+    }
+
+    const validPassword = await bcrypt.compare(password, user.password)
+
+    if (!validPassword) {
+      return res.status(400).json({ error: 'Invalid Password' })
+    }
+
+    //로그인 성공
+    const accessToken = generateAccessToken(user.id, user.username, user.email)
+    const refreshToken = generateRefreshToken(user.id, user.username, user.email)
+    registerToken(refreshToken, accessToken)
+    const decoded = verify(accessToken, process.env.SECRET_ATOKEN)
+    res.cookie('refreshToken', refreshToken, {
+      path: '/',
+      httpOnly: true,
+      maxAge: 3600 * 24 * 30 * 1000,
+    })
+    return res.send({ content: decoded, accessToken })
   }
 }
