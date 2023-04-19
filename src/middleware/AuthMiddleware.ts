@@ -1,8 +1,5 @@
 import { NextFunction, Request, Response } from 'express'
 import { verify } from 'jsonwebtoken'
-import { myDataBase } from '../db'
-import { User } from '../entity/User'
-import bcrypt from 'bcrypt'
 
 export interface TokenPayload {
   email: string
