@@ -17,17 +17,32 @@ export class PostController {
           profile_image: true,
           profile_message: true,
           createdAt: true,
-          updatedAt: true,
+          updatedAt: false,
+        },
+        comments: {
+          id: true,
+          comment: true,
+          createdAt: true,
+          updatedAt: false,
+          user: {
+            id: true,
+            email: true,
+            username: true,
+            profile_image: true,
+            profile_message: true,
+          },
         },
       },
-      relations: ['comments', 'likes', 'user'],
+      relations: ['comments', 'likes', 'user', 'comments.user'],
     })
     return res.status(200).send(posts)
   }
-  static getPost = async (req: Request, res: Response) => {
+  static getPost = async (req: JwtRequest, res: Response) => {
+    const decoded = req.decoded
+
     const post = await myDataBase.getRepository(Post).findOne({
       where: {
-        id: Number(req.params.id),
+        id: Number(decoded.id),
       },
       select: {
         user: {
@@ -37,7 +52,20 @@ export class PostController {
           profile_image: true,
           profile_message: true,
           createdAt: true,
-          updatedAt: true,
+          updatedAt: false,
+        },
+        comments: {
+          id: true,
+          comment: true,
+          createdAt: true,
+          updatedAt: false,
+          user: {
+            id: true,
+            email: true,
+            username: true,
+            profile_image: true,
+            profile_message: true,
+          },
         },
       },
       relations: ['comments', 'likes', 'user'],

@@ -79,7 +79,7 @@ export class UserController {
           },
         },
       },
-      relations: ['post', 'following', 'following.follower', 'follower', 'follower.following'],
+      relations: ['post', 'following', 'following.follower', 'follower', 'follower.following', 'post.likes'],
     })
     return res.send(result)
   }
