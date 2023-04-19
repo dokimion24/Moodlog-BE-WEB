@@ -35,13 +35,4 @@ export class FollowController {
 
     res.send({ message: 'success' })
   }
-
-  static getFollower = async (req: JwtRequest, res: Response) => {
-    const decoded = req.decoded
-
-    const result = await myDataBase.getRepository(Follow).find({
-      where: { follower: { id: Number(decoded.id) } },
-    })
-    res.send(result)
-  }
 }

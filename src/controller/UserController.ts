@@ -16,8 +16,6 @@ export class UserController {
   static register = async (req: MulterS3Request, res: Response) => {
     const { email, password, username } = req.body
 
-    const { location } = req.file
-
     const existUser = await myDataBase.getRepository(User).findOne({
       where: { email },
     })
@@ -30,7 +28,10 @@ export class UserController {
     user.email = email
     user.password = await generatePassword(password)
     user.username = username
-    user.profile_image = location
+    if (req.file) {
+      const { location } = req.file
+      user.profile_image = location
+    }
 
     const newUser = await myDataBase.getRepository(User).save(user)
 
@@ -49,7 +50,7 @@ export class UserController {
     res.send({ content: decoded, accessToken })
   }
 
-  static getUser = async (req: JwtRequest, res: Response) => {
+  static getProfile = async (req: JwtRequest, res: Response) => {
     const decoded = req.decoded
     const result = await myDataBase.getRepository(User).findOne({
       where: { id: Number(decoded.id) },
@@ -82,7 +83,38 @@ export class UserController {
     })
     return res.send(result)
   }
-
+  static getUser = async (req: Request, res: Response) => {
+    const result = await myDataBase.getRepository(User).findOne({
+      where: { id: Number(req.params.id) },
+      select: {
+        id: true,
+        email: true,
+        username: true,
+        profile_image: true,
+        profile_message: true,
+        follower: {
+          id: true,
+          following: {
+            id: true,
+            username: true,
+            profile_image: true,
+            profile_message: true,
+          },
+        },
+        following: {
+          id: true,
+          follower: {
+            id: true,
+            username: true,
+            profile_image: true,
+            profile_message: true,
+          },
+        },
+      },
+      relations: ['post', 'following', 'following.follower', 'follower', 'follower.following'],
+    })
+    return res.send(result)
+  }
   static login = async (req: Request, res: Response) => {
     const { email, password } = req.body
     const user = await myDataBase.getRepository(User).findOne({
@@ -148,9 +180,7 @@ export class UserController {
   }
 
   static updateProfile = async (req: JwtwithMulter, res: Response) => {
-    const { profile_message } = req.body
-
-    const { location } = req.file
+    const { username, profile_message } = req.body
 
     const decoded = req.decoded
 
@@ -159,8 +189,12 @@ export class UserController {
     })
 
     const newUser = new User()
-    newUser.profile_image = location
+    newUser.username = username
     newUser.profile_message = profile_message
+    if (req.file) {
+      const { location } = req.file
+      newUser.profile_image = location
+    }
 
     const result = await myDataBase.getRepository(User).update(user.id, newUser)
     res.send(result)
