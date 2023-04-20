@@ -79,7 +79,7 @@ export class UserController {
           },
         },
       },
-      relations: ['post', 'following', 'following.follower', 'follower', 'follower.following', 'likes'],
+      relations: ['post', 'following', 'following.follower', 'follower', 'follower.following', 'likes', 'likes.post'],
     })
     return res.send(result)
   }
@@ -111,7 +111,7 @@ export class UserController {
           },
         },
       },
-      relations: ['post', 'following', 'following.follower', 'follower', 'follower.following', 'likes'],
+      relations: ['post', 'following', 'following.follower', 'follower', 'follower.following', 'likes', 'likes.post'],
     })
     return res.send(result)
   }
@@ -154,7 +154,6 @@ export class UserController {
   }
 
   static withdrawal = async (req: JwtRequest, res: Response) => {
-    const { password } = req.body
     const decoded = req.decoded
 
     const user = await myDataBase.getRepository(User).findOne({
@@ -163,12 +162,6 @@ export class UserController {
 
     if (!user) {
       return res.status(400).json({ error: 'User not found' })
-    }
-
-    const validPassword = await bcrypt.compare(password, user.password)
-
-    if (!validPassword) {
-      return res.status(400).json({ error: 'Invalid Password' })
     }
 
     try {
