@@ -1,8 +1,6 @@
 import { Request, Response } from 'express'
 import { myDataBase } from '../db'
 import { Post } from '../entity/Post'
-import { Comment } from '../entity/Comment'
-import { Like } from '../entity/Like'
 import { User } from '../entity/User'
 import { JwtRequest } from '../middleware/AuthMiddleware'
 
@@ -38,11 +36,9 @@ export class PostController {
     return res.status(200).send(posts)
   }
   static getPost = async (req: JwtRequest, res: Response) => {
-    const decoded = req.decoded
-
     const post = await myDataBase.getRepository(Post).findOne({
       where: {
-        id: Number(decoded.id),
+        id: Number(req.params.id),
       },
       select: {
         user: {
