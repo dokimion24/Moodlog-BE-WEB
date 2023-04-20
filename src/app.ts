@@ -7,6 +7,7 @@ import likeRouter from './router/like'
 import { upload } from './util/upload'
 import UserRouter from './router/auth'
 import FollowRouter from './router/follow'
+import cookieParser from 'cookie-parser'
 
 export const tokenList = {}
 
@@ -28,9 +29,7 @@ app.use(
     origin: true,
   }),
 )
-app.post('/upload', upload.single('img'), (req: Request, res: Response) => {
-  res.json(req.file)
-}) // 업로드 후에, (req, res) => {} 부분이 실행
+app.use(cookieParser())
 
 app.use('/posts', postRouter)
 app.use('/comments', commentRouter)
