@@ -6,19 +6,18 @@ import { JwtRequest } from '../middleware/AuthMiddleware'
 
 export class FollowController {
   static followUser = async (req: JwtRequest, res: Response) => {
-    const { userId } = req.body
     const decoded = req.decoded
 
     const isExist = await myDataBase.getRepository(Follow).findOne({
       where: {
         following: { id: Number(decoded.id) },
-        follower: { id: Number(userId) },
+        follower: { id: Number(req.params.id) },
       },
     })
 
     if (!isExist) {
       const follower = await myDataBase.getRepository(User).findOneBy({
-        id: Number(userId),
+        id: Number(req.params.id),
       })
       const following = await myDataBase.getRepository(User).findOneBy({
         id: decoded.id,
