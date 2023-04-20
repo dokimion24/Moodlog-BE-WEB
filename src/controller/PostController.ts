@@ -68,7 +68,7 @@ export class PostController {
           },
         },
       },
-      relations: ['comments', 'likes', 'user'],
+      relations: ['comments', 'comments.user', 'likes', 'user'],
     })
     if (!post) {
       // 해당 번호의 글이 없다면 404 응답
