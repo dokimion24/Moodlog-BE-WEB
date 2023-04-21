@@ -78,7 +78,7 @@ export class PostController {
   }
 
   static createPost = async (req: JwtRequest, res: Response) => {
-    const { title, body, feeling_code, open = true } = req.body
+    const { title, body, feeling_code, open } = req.body
     const { id: userId } = req.decoded
     const user = await myDataBase.getRepository(User).findOneBy({
       id: userId,

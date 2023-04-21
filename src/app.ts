@@ -7,6 +7,7 @@ import likeRouter from './router/like'
 import { upload } from './util/upload'
 import UserRouter from './router/auth'
 import FollowRouter from './router/follow'
+import FeelingCodeRouter from './router/feelingcode'
 
 export const tokenList = {}
 
@@ -37,6 +38,7 @@ app.use('/comments', commentRouter)
 app.use('/likes', likeRouter)
 app.use('/auth', UserRouter)
 app.use('/follow', FollowRouter)
+app.use('/feeling', FeelingCodeRouter)
 
 app.listen(3000, () => {
   console.log('Express server has started on port 3000')

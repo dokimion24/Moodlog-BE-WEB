@@ -13,6 +13,7 @@ import {
 import { Comment } from './Comment'
 import { Like } from './Like'
 import { User } from './User'
+import { FeelingCode } from './FeelingCode'
 @Entity() // 해당 클래스는 DB 테이블
 export class Post {
   @PrimaryGeneratedColumn() // Primary Key, 자동 생성
