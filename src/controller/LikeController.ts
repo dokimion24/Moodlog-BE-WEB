@@ -3,6 +3,7 @@ import { myDataBase } from '../db'
 import { Like } from '../entity/Like'
 import { Post } from '../entity/Post'
 import { User } from '../entity/User'
+import { JwtRequest } from '../middleware/AuthMiddleware'
 
 export class LikeController {
   static getLikes = async (req: Request, res: Response) => {
@@ -19,12 +20,13 @@ export class LikeController {
 
     return res.status(200).send(likes)
   }
-  static updateLike = async (req: Request, res: Response) => {
+  static updateLike = async (req: JwtRequest, res: Response) => {
+    const decoded = req.decoded
     // 이미 해당 게시글에 좋아요를 한 사람인지 확인
     const isExist = await myDataBase.getRepository(Like).findOne({
       where: {
         post: { id: Number(req.params.id) },
-        user: { id: req.body.id },
+        user: { id: decoded.id },
       },
     })
     // 이미 좋아요를 누른게 아니라면
@@ -34,7 +36,7 @@ export class LikeController {
         id: Number(req.params.id),
       })
       const user = await myDataBase.getRepository(User).findOneBy({
-        id: req.body.id,
+        id: decoded.id,
       })
       const like = new Like()
       like.post = post

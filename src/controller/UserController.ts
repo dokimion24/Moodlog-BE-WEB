@@ -50,71 +50,6 @@ export class UserController {
     res.send({ content: decoded, accessToken })
   }
 
-  static getProfile = async (req: JwtRequest, res: Response) => {
-    const decoded = req.decoded
-    const result = await myDataBase.getRepository(User).findOne({
-      where: { id: Number(decoded.id) },
-      select: {
-        id: true,
-        email: true,
-        username: true,
-        profile_image: true,
-        profile_message: true,
-        follower: {
-          id: true,
-          following: {
-            id: true,
-            username: true,
-            profile_image: true,
-            profile_message: true,
-          },
-        },
-        following: {
-          id: true,
-          follower: {
-            id: true,
-            username: true,
-            profile_image: true,
-            profile_message: true,
-          },
-        },
-      },
-      relations: ['post', 'following', 'following.follower', 'follower', 'follower.following', 'post.likes'],
-    })
-    return res.send(result)
-  }
-  static getUser = async (req: Request, res: Response) => {
-    const result = await myDataBase.getRepository(User).findOne({
-      where: { id: Number(req.params.id) },
-      select: {
-        id: true,
-        email: true,
-        username: true,
-        profile_image: true,
-        profile_message: true,
-        follower: {
-          id: true,
-          following: {
-            id: true,
-            username: true,
-            profile_image: true,
-            profile_message: true,
-          },
-        },
-        following: {
-          id: true,
-          follower: {
-            id: true,
-            username: true,
-            profile_image: true,
-            profile_message: true,
-          },
-        },
-      },
-      relations: ['post', 'following', 'following.follower', 'follower', 'follower.following'],
-    })
-    return res.send(result)
-  }
   static login = async (req: Request, res: Response) => {
     const { email, password } = req.body
     const user = await myDataBase.getRepository(User).findOne({
@@ -154,7 +89,6 @@ export class UserController {
   }
 
   static withdrawal = async (req: JwtRequest, res: Response) => {
-    const { password } = req.body
     const decoded = req.decoded
 
     const user = await myDataBase.getRepository(User).findOne({
@@ -165,18 +99,97 @@ export class UserController {
       return res.status(400).json({ error: 'User not found' })
     }
 
-    const validPassword = await bcrypt.compare(password, user.password)
-
-    if (!validPassword) {
-      return res.status(400).json({ error: 'Invalid Password' })
-    }
-
     try {
       await myDataBase.getRepository(User).delete(user.id)
       res.status(204).send({ message: 'success' })
     } catch (error) {
       res.status(403).json(error)
     }
+  }
+
+  static refresh = async (req: JwtRequest, res: Response) => {
+    const { id, username, email } = req.decoded
+    removeToken(req.cookies.refreshToken)
+
+    const accessToken = generateAccessToken(id, username, email)
+    const refreshToken = generateRefreshToken(id, username, email)
+    registerToken(refreshToken, accessToken)
+
+    const decoded = verify(accessToken, process.env.SECRET_ATOKEN)
+
+    res.cookie('refreshToken', refreshToken, { path: '/', httpOnly: true, maxAge: 60 * 60 * 24 * 30 * 1000 })
+    res.send({ content: decoded, accessToken })
+  }
+
+  static verify = async (req: JwtRequest, res: Response) => {
+    res.send({ content: req.decoded })
+  }
+
+  static getProfile = async (req: JwtRequest, res: Response) => {
+    const decoded = req.decoded
+    const result = await myDataBase.getRepository(User).findOne({
+      where: { id: Number(decoded.id) },
+      select: {
+        id: true,
+        email: true,
+        username: true,
+        profile_image: true,
+        profile_message: true,
+        follower: {
+          id: true,
+          following: {
+            id: true,
+            username: true,
+            profile_image: true,
+            profile_message: true,
+          },
+        },
+        following: {
+          id: true,
+          follower: {
+            id: true,
+            username: true,
+            profile_image: true,
+            profile_message: true,
+          },
+        },
+      },
+      relations: ['post', 'following', 'following.follower', 'follower', 'follower.following', 'likes', 'likes.post'],
+    })
+    return res.send(result)
+  }
+
+  static getUser = async (req: Request, res: Response) => {
+    const result = await myDataBase.getRepository(User).findOne({
+      where: { id: Number(req.params.id) },
+      select: {
+        id: true,
+        email: true,
+        username: true,
+        profile_image: true,
+        profile_message: true,
+        follower: {
+          id: true,
+          following: {
+            id: true,
+            username: true,
+            profile_image: true,
+            profile_message: true,
+          },
+        },
+        following: {
+          id: true,
+          follower: {
+            id: true,
+            username: true,
+            profile_image: true,
+            profile_message: true,
+          },
+        },
+      },
+      relations: ['post', 'following', 'following.follower', 'follower', 'follower.following', 'likes', 'likes.post'],
+    })
+    return res.send(result)
   }
 
   static updateProfile = async (req: JwtwithMulter, res: Response) => {
