@@ -54,6 +54,8 @@ export class UserController {
     const { email, password } = req.body
     const user = await myDataBase.getRepository(User).findOne({
       where: { email },
+
+      relations: ['post', 'following', 'following.follower', 'follower', 'follower.following', 'likes', 'likes.post'],
     })
 
     if (!user) {
@@ -76,7 +78,7 @@ export class UserController {
       httpOnly: true,
       maxAge: 3600 * 24 * 30 * 1000,
     })
-    return res.send({ content: decoded, accessToken })
+    return res.send({ content: decoded, accessToken, user })
   }
 
   static logout = (req: Request, res: Response) => {
