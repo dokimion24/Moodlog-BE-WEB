@@ -27,7 +27,7 @@ export class CommentController {
     comment.user = user
     // 해당 객체대로 db 에 추가
     const result = await myDataBase.getRepository(Comment).insert(comment)
-    return res.status(201).send('success')
+    return res.status(201).send(result)
   }
 
   static updateComment = async (req: JwtRequest, res: Response) => {
@@ -44,8 +44,8 @@ export class CommentController {
       // 글 작성자와 요청 보낸 사람이 일치하지 않으면
       return res.status(401).send('No Permission') // 거부
     }
-    await myDataBase.getRepository(Comment).update(Number(req.params.id), req.body)
-    return res.status(200).send('success')
+    const result = await myDataBase.getRepository(Comment).update(Number(req.params.id), req.body)
+    return res.status(200).send(result)
   }
 
   static deleteComment = async (req: JwtRequest, res: Response) => {
