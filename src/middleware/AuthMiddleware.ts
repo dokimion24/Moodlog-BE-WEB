@@ -13,6 +13,10 @@ export interface JwtRequest extends Request {
   file: Express.MulterS3.File
 }
 
+export interface RequestImg extends Request {
+  file: Express.MulterS3.File
+}
+
 //app.post('/', 인증미들웨어, 글작성 함수)
 export class AuthMiddleware {
   static verifyToken = (req: JwtRequest, res: Response, next: NextFunction) => {

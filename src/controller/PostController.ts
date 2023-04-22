@@ -74,7 +74,7 @@ export class PostController {
   }
 
   static createPost = async (req: JwtRequest, res: Response) => {
-    const { title, body, feeling_code, open = true } = req.body
+    const { title, body, feeling_code, open } = req.body
     const { id: userId } = req.decoded
     const user = await myDataBase.getRepository(User).findOneBy({
       id: userId,
@@ -93,7 +93,7 @@ export class PostController {
     }
     // 해당 객체대로 db 에 추가
     const result = await myDataBase.getRepository(Post).save(post)
-    return res.status(201).send('success')
+    return res.status(201).send(result)
   }
 
   static updatePost = async (req: JwtRequest, res: Response) => {
@@ -125,7 +125,7 @@ export class PostController {
     }
 
     const result = await myDataBase.getRepository(Post).update(Number(req.params.id), post)
-    return res.status(200).send('success')
+    return res.status(200).send(result)
   }
 
   static deletePost = async (req: JwtRequest, res: Response) => {
