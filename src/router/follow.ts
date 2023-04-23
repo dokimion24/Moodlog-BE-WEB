@@ -4,5 +4,5 @@ import { FollowController } from '../controller/FollowController'
 
 const routes = Router()
 
-routes.post('/', AuthMiddleware.verifyToken, FollowController.followUser)
+routes.post('/:id', AuthMiddleware.verifyToken, FollowController.followUser)
 export default routes
