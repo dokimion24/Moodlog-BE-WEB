@@ -82,10 +82,7 @@ export class UserController {
   }
 
   static logout = (req: Request, res: Response) => {
-    const cookie = req.headers['cookie']
-    const refreshToken = cookie.includes('refreshToken') && cookie.match(/(?<=refreshToken=).{1,}/gm)[0]
-
-    removeToken(refreshToken)
+    removeToken(req.cookies.refreshToken)
     res.clearCookie('refreshToken', { path: '/' })
     res.send({ message: 'success' })
   }
@@ -155,8 +152,24 @@ export class UserController {
             profile_message: true,
           },
         },
+        likes: {
+          id: true,
+          post: {
+            id: true,
+          },
+          user: { id: true },
+        },
       },
-      relations: ['post', 'following', 'following.follower', 'follower', 'follower.following', 'likes', 'likes.post'],
+      relations: [
+        'post',
+        'following',
+        'following.follower',
+        'follower',
+        'follower.following',
+        'likes',
+        'likes.post',
+        'likes.user',
+      ],
     })
     return res.send(result)
   }
