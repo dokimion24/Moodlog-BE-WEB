@@ -30,16 +30,6 @@ app.use(
     origin: true,
   }),
 )
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', 'http://127.0.0.1:5173') // 허용할 출처
-  res.header('Access-Control-Allow-Credentials', 'true') // 쿠키 전송 허용
-
-  if (req.method === 'OPTIONS') {
-    res.sendStatus(200) // Preflight request 핸들링
-  } else {
-    next()
-  }
-})
 app.use(cookieParser())
 
 app.use('/posts', postRouter)

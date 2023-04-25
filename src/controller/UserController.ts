@@ -141,6 +141,7 @@ export class UserController {
             username: true,
             profile_image: true,
             profile_message: true,
+            email: true,
           },
         },
         following: {
@@ -150,6 +151,7 @@ export class UserController {
             username: true,
             profile_image: true,
             profile_message: true,
+            email: true,
           },
         },
         likes: {
@@ -190,6 +192,7 @@ export class UserController {
             username: true,
             profile_image: true,
             profile_message: true,
+            email: true,
           },
         },
         following: {
@@ -199,6 +202,7 @@ export class UserController {
             username: true,
             profile_image: true,
             profile_message: true,
+            email: true,
           },
         },
       },
