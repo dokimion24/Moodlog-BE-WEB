@@ -5,6 +5,7 @@ import { generateAccessToken, generatePassword, generateRefreshToken, registerTo
 import { verify } from 'jsonwebtoken'
 import bcrypt from 'bcrypt'
 import { JwtRequest } from '../middleware/AuthMiddleware'
+import { Like } from 'typeorm'
 
 interface MulterS3Request extends Request {
   file: Express.MulterS3.File
@@ -54,8 +55,6 @@ export class UserController {
     const { email, password } = req.body
     const user = await myDataBase.getRepository(User).findOne({
       where: { email },
-
-      relations: ['post', 'following', 'following.follower', 'follower', 'follower.following', 'likes', 'likes.post'],
     })
 
     if (!user) {
@@ -208,6 +207,16 @@ export class UserController {
       },
       relations: ['post', 'following', 'following.follower', 'follower', 'follower.following', 'likes', 'likes.post'],
     })
+    return res.send(result)
+  }
+
+  static searchUser = async (req: Request, res: Response) => {
+    const result = await myDataBase.getRepository(User).find({
+      where: {
+        username: Like(`%${req.params.qeury}%`),
+      },
+    })
+
     return res.send(result)
   }
 
