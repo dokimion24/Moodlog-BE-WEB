@@ -30,7 +30,6 @@ app.use(
     origin: true,
   }),
 )
-
 app.use(cookieParser())
 
 app.use('/posts', postRouter)
