@@ -215,6 +215,14 @@ export class UserController {
       where: {
         username: Like(`%${req.params.qeury}%`),
       },
+      select: {
+        id: true,
+        email: true,
+        username: true,
+        password: false,
+        profile_image: true,
+        profile_message: true,
+      },
     })
 
     return res.send(result)
