@@ -13,7 +13,7 @@ routes.get('/refresh', AuthMiddleware.verifyRefreshToken, UserController.refresh
 routes.get('/verify', AuthMiddleware.verifyToken, UserController.verify)
 routes.get('/user', AuthMiddleware.verifyToken, UserController.getProfile)
 routes.get('/user/:id', UserController.getUser)
-routes.get('/search/:qeury', UserController.searchUser)
+routes.post('/search', UserController.searchUser)
 routes.put('/user', AuthMiddleware.verifyToken, upload.single('img'), UserController.updateProfile)
 
 export default routes
