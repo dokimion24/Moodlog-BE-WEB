@@ -211,9 +211,10 @@ export class UserController {
   }
 
   static searchUser = async (req: Request, res: Response) => {
+    const { query } = req.body
     const result = await myDataBase.getRepository(User).find({
       where: {
-        username: Like(`%${req.params.qeury}%`),
+        username: Like(`%${query}%`),
       },
       select: {
         id: true,
